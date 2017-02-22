@@ -1,30 +1,48 @@
 ---
 version: '2'
 services:
-  auth:
-    # restart: always
-    image: cesanta/docker_auth:1.2
+  nginx:
+    image: nginx:1.10
     ports:
-      - 5001:5001
-    command: /config/config.yml
+      - 80:80
+      - 443:443
     volumes:
-      - './volumes/registry-auth/config:/config:ro'
-      - './volumes/certs:/certs:ro'
-      - 'registry_auth_logs:/logs'
+       - ./conf/nginx:/etc/nginx/conf.d/:ro
+       - ./certs/nginx:/certs:ro
+    networks:
+      - registry-net
+    depends_on:
+      - registry
+      - registry-web
+
+  registry-web:
+    image: hyper/docker-registry-web:latest
+    ports:
+      - 127.0.0.1:8080:8080
+    volumes:
+       - ./conf/registry-web:/conf:ro
+       - ./certs/registry:/certs:ro
+       - registry_web_data:/data
+    networks:
+      - registry-net
+    depends_on:
+      - registry
 
   registry:
-    # restart: always
-    image: registry:2
+    image: registry:2.6
     ports:
-      - 5000:5000
-    depends_on:
-      - auth
+      - 127.0.0.1:5000:5000
     volumes:
-      - './volumes/registry/config:/etc/docker/registry:ro'
-      - './volumes/certs:/certs:ro'
-      - 'registry_data:/var/lib/registry'
-      # - './volumes/registry/auth:/auth'
+      - ./conf/registry:/etc/docker/registry:ro
+      - ./certs/registry:/certs:ro
+      - registry_data:/var/lib/registry
+    networks:
+      - registry-net
+
 
 volumes:
   registry_data:
-  registry_auth_logs:
+  registry_web_data:
+
+networks:
+  registry-net:

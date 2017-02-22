@@ -1,0 +1,8 @@
+registry:
+   url: http://registry:5000/v2
+   name: localhost
+   readonly: false
+   auth:
+     enabled: true
+     key: /certs/auth.key
+     issuer: test

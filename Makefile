@@ -1,20 +1,5 @@
 # set default shell
 SHELL := $(shell which bash)
-GROUP_ID = $(shell id -g)
-USER_ID = $(shell id -u)
-GROUPNAME =  dev
-USERNAME = dev
-HOMEDIR = /home/$(USERNAME)
-
-# SSL Infos
-SSL_COUNTRY=FR
-SSL_STATE=Ile-de-France
-SSL_LOCALITY=Paris
-SSL_ORG=Foobar
-SSL_ORGUNIT=RD
-SSL_DOMAIN=localhost
-SSL_EMAIL=foobar@example.com
-
 ENV = /usr/bin/env
 DKC = docker-compose
 DK = docker
@@ -29,12 +14,11 @@ default: all;   # default target
 
 .PHONY: all volumes build stop rm _rm prune _upd
 
-volumes:
-	mkdir -p volumes/registry-auth/config \
-	volumes/registry/config \
-	volumes/certs
+all: rm genssl build up
 
-# unit tests with docker
+volumes:
+	mkdir -p certs conf/nginx conf/registry-web conf/registry
+
 build: volumes
 	$(ENV) $(DKC) build
 
@@ -60,6 +44,6 @@ _upd: volumes
 ps: volumes
 	$(ENV) $(DKC) ps
 
-genssl:
-	./generate_ssl.sh volumes/certs/auth
-	./generate_ssl.sh volumes/certs/registry
+genssl: volumes
+	SSL_DOMAIN=localhost ./generate_ssl.sh certs/registry/auth
+	SSL_DOMAIN=localhost ./generate_ssl.sh certs/nginx/ssl
