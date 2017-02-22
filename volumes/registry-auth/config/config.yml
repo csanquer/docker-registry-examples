@@ -1,0 +1,36 @@
+
+#
+#  auth:
+#    token:
+#      realm: "https://127.0.0.1:5001/auth"
+#      service: "Docker registry"
+#      issuer: "Acme auth server"
+#      rootcertbundle: "/certs/auth.crt"
+
+server:
+  addr: ":5001"
+  certificate: /certs/auth.crt
+  key: /certs/auth.key
+
+token:
+  issuer: "Acme auth server"  # Must match issuer in the Registry config.
+  expiration: 900
+
+users:
+  # Password is specified as a BCrypt hash. Use htpasswd -Bn to generate.
+  "admin":
+    password: "$2y$05$1j3YCicU5kV/HSdKUyMU..q7OQ3tu.ZozooRJ/u0ZF19dqynX99tq"  # admin
+  "test":
+    password: "$2y$05$UNsIw.yaLWoudXawkj0Gbujm9jgaCbSXfZcmcmCDBXbTkTQ5Vi22y"  # test
+
+acl:
+  - match: {account: "admin"}
+    actions: ["*"]
+    comment: "Admin has full access to everything."
+  - match: {account: "user"}
+    actions: ["pull"]
+    comment: "User \"user\" can pull everything."
+  - match: {account: ""}
+    actions: ["pull"]
+    comment: "Anonymous users can pull everything."
+  # Access is denied by default.

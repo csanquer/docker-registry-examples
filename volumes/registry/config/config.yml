@@ -1,0 +1,31 @@
+---
+version: 0.1
+log:
+  fields:
+    service: registry
+storage:
+  cache:
+    blobdescriptor: inmemory
+  filesystem:
+    rootdirectory: /var/lib/registry
+auth:
+  token:
+    realm: "https://0.0.0.0:5001/auth"
+    service: "Docker registry"
+    issuer: "Acme auth server"
+    rootcertbundle: "/certs/auth.crt"
+  # htpasswd:
+  #   realm: Registry Realm
+  #   path: /auth/htpasswd
+http:
+  addr: :5000
+  headers:
+    X-Content-Type-Options: [nosniff]
+  tls:
+    certificate: /certs/registry.crt
+    key: /certs/registry.key
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3

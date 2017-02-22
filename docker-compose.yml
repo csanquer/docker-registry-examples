@@ -1,0 +1,30 @@
+---
+version: '2'
+services:
+  auth:
+    # restart: always
+    image: cesanta/docker_auth:1.2
+    ports:
+      - 5001:5001
+    command: /config/config.yml
+    volumes:
+      - './volumes/registry-auth/config:/config:ro'
+      - './volumes/certs:/certs:ro'
+      - 'registry_auth_logs:/logs'
+
+  registry:
+    # restart: always
+    image: registry:2
+    ports:
+      - 5000:5000
+    depends_on:
+      - auth
+    volumes:
+      - './volumes/registry/config:/etc/docker/registry:ro'
+      - './volumes/certs:/certs:ro'
+      - 'registry_data:/var/lib/registry'
+      # - './volumes/registry/auth:/auth'
+
+volumes:
+  registry_data:
+  registry_auth_logs:
